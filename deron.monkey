@@ -11,54 +11,35 @@ Function RectsOverlap:Int(x1:Float, y1:Float, w1:Float, h1:Float, x2:Float, y2:F
 	Return True
 End
 
+Function RectIntersection:Float[](x1:Float, y1:Float, w1:Float, h1:Float, x2:Float, y2:Float, w2:Float, h2:Float)
+	' Get the right and bottom coordinates
+	Local r1:Float = x1 + w1
+	Local r2:Float = x2 + w2
+	Local b1:Float = y1 + h1
+	Local b2:Float = y2 + h2
+	
+	' Find intersection.
+	Local xL:Float = Max(x1, x2)
+	Local xR:Float = Min(r1, r2)
+
+	If xR <= xL
+	    Return []
+	Else
+	    Local yT:Float = Max(y1, y2)
+	    Local yB:Float = Min(b1, b2)
+	    If yB <= yT Then Return []
+	    Return [xL, yT, xR - xL, yB - yT]
+	End
+End
 
 ' Landing from above is true if the intersecting rectangle is horizontal.
 Function LandingFromAbove:Bool(x1:Float, y1:Float, w1:Float, h1:Float, x2:Float, y2:Float, w2:Float, h2:Float)
-
-'Rect r1 = New Rect(x1, y2, w1, h1);
-'Rect r2 = New Rect(x3, y4, w2, h2);
-'
-' Get the coordinates of other points needed later.
-'Local x2:Float = x1 + w1
-'Local x4:Float = x3 + w2
-'Local y1:Float = y2 - h1
-'Local y3:Float = y4 - h2
-'
-' Find intersection.
-'Local xL:Float = Max(x1, x3)
-'Local xR:Float = Min(x2, x4)
-'If xR <= xL
-'    Return Null
-'Else
-'    Int yT = Math.max(y1, y3);
-'    Int yB = Math.min(y2, y4);
-'    If (yB <= yT)
-'        Return Null
-'    Else
-'        Return New Rect(xL, yB, xR-xL, yB-yT)
-'    End
-'End
-
-	Local w3:Float, h3:Float
+	Local intersectingRect:Float[] = RectIntersection(x1, y1, w1, h1, x2, y2, w2, h2)
 	
-	If y1 < y2
-		If x1 < x2
-			Print "x1 < x2"
-			Local w3:Float = x1 + w1 - x2
-			Local h3:Float = y1 + h1 - y2
-		Else
-			Print "else"
-			Local w3:Float = y2 + w2 - x1
-			Local h3:Float = y1 + h1 - y2
-		End
-
-		Print "w3: " + w3 + ", h3: " + h3
-		If w3 > h3 Then Print "above" Else Print "side1"	
-		Return w3 > h3
-	Else
-		Print "side2"
-		Return False
-	End
+	' intersectingRect[2] is width.
+	' intersectingRect[3] is height.
+	' If width > height, it's horizontal intersection, so we are landing from above.
+	Return intersectingRect[2] > intersectingRect[3]
 End
 
 Class DeronsGreatAdventure Extends App 
